@@ -1,6 +1,7 @@
 from aiogram import Bot, Dispatcher
 from aiogram.enums.parse_mode import ParseMode
 from aiogram.fsm.storage.memory import MemoryStorage
+from aiogram.fsm.strategy import FSMStrategy
 
 from config_data.config import load_config, Config
 
@@ -10,7 +11,7 @@ def create_bot(conf: Config):
 
 
 def create_dispatcher():
-    return Dispatcher(storage=MemoryStorage())
+    return Dispatcher(storage=MemoryStorage(), fsm_strategy=FSMStrategy.CHAT)
 
 
 config = load_config()

@@ -1,13 +1,18 @@
 from aiogram import types, Router
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
-from aiogram.fsm.state import default_state
+from aiogram.fsm.state import default_state, StatesGroup, State
 from database.models import User
 from loader import dp
 
 from user_interface import text
 
 router = Router()
+
+
+class StartState(StatesGroup):
+    start_state = State()
+
 
 def get_user_info(message: types.Message) -> tuple:
     """Retrieve user information from a Telegram message."""
@@ -28,7 +33,7 @@ def create_and_save_user(user_id, username, first_name, last_name):
 async def start_command_handler(message: types.Message, state: FSMContext) -> None:
     """Handler for the /start command."""
 
-    await state.clear()
+    await state.set_state(StartState.start_state)
     await message.reply(text.START_MSG)
 
 
