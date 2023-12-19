@@ -47,17 +47,3 @@ async def start_command_handler(message: types.Message, state: FSMContext) -> No
     await state.clear()
     await message.answer(text=text.HELP_MSG)
 
-
-@dp.message(Command("help"))
-async def help_command_handler(message: types.Message):
-    await message.answer(text.HELP_MSG)
-
-
-@dp.message(Command("emoji"))
-async def cmd_dice(message: types.Message):
-    await message.answer_dice(emoji="🎲")
-
-
-@dp.message(Command("info"))
-async def cmd_info(message: types.Message, started_at: str):
-    await message.answer(f"Бот запущен {started_at}")
