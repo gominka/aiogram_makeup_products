@@ -13,7 +13,7 @@ router = Router()
 
 class SelectCond(StatesGroup):
     choosing_condition = State()
-    choosing_food_size = State()
+    custom_state = State()
 
 
 # Define constant for the continue search callback
@@ -35,37 +35,32 @@ async def send_search_condition_message(chat_id, text, reply_markup):
 async def search_command_handler(message: types.Message, state: FSMContext) -> None:
     """Handle commands related to product search."""
 
-    user_id, chat_id = message.from_user.id, message.chat.id
+
+    await state.update_data(search_cond=message.text[1:])
 
     user_data = await state.get_data()
-
-    user_data["search_cond"] = message.text[1:]
-
     if "params" not in user_data:
         user_data["params"] = BASE_PARAMS
 
     await message.answer(
         text="Select a condition:",
-        reply_markup=create_name_selection_keyboard(create_name_selection_keyboard(user_data["params"],
-                                                                                   user_data["search_cond"]))
+        reply_markup=create_name_selection_keyboard(user_data["params"], user_data["search_cond"])
     )
 
     await state.set_state(SelectCond.choosing_condition)
 
 
 @router.message(SelectCond.choosing_condition)
-async def callback_search_command(call: types.CallbackQuery) -> None:
+async def callback_search_command(callback: types.CallbackQuery, state: FSMContext) -> None:
     """Process button clicks, condition selection."""
 
     user_id = call.from_user.id
     chat_id = call.message.chat.id
 
-    data = await get_user_data(user_id, chat_id)
-    search_cond = data["search_cond"]
-    data["params"][search_cond] = call.data
+    user_data = await state.get_data()
+    search_cond = user_data["search_cond"]
+    user_data["params"][search_cond] = call.data
 
-    search_command_markup = create_search_command_keyboard(search_cond)
+    await send_search_condition_message(chat_id, "Select a condition ", create_search_command_keyboard(search_cond))
 
-    await send_search_condition_message(chat_id, "Select a condition ", search_command_markup)
-
-    await state.set_state(states.custom_states.UserState.custom_state)
+    await state.set_state(SelectCond.custom_state)

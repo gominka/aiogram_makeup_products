@@ -1,5 +1,7 @@
 from aiogram import types
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, KeyboardButton
+from aiogram.utils.keyboard import InlineKeyboardBuilder
+
 from site_ip.main_request import get_conditions_list
 
 # Constants
@@ -18,9 +20,10 @@ def create_name_selection_keyboard(params, selected_condition):
     :param selected_condition: The currently selected condition.
     :return: InlineKeyboardMarkup.
     """
-    # Use the conditions_list to generate the keyboard
+
     buttons = [InlineKeyboardButton(text=condition, callback_data=condition) for condition in
                get_conditions_list(params=params, selected_condition=selected_condition)]
+
     return InlineKeyboardMarkup(inline_keyboard=[buttons[i:i + 5] for i in range(0, len(buttons), 5)])
 
 
@@ -31,23 +34,22 @@ def create_search_command_keyboard(search_cond):
     :param search_cond: The current search condition.
     :return: InlineKeyboardMarkup.
     """
-    search_command_markup = types.InlineKeyboardMarkup(row_width=2)
+    builder = InlineKeyboardBuilder()
 
-    custom_search = InlineKeyboardButton(text='Continue the search',
-                                         callback_data=CONTINUE_SEARCH_CALLBACK)
-    cancel = InlineKeyboardButton(text=CANCEL_TEXT,
-                                  callback_data=CANCEL_SEARCH_CALLBACK)
+    builder.add(types.InlineKeyboardButton(
+        text='Continue the search',
+        callback_data=CONTINUE_SEARCH_CALLBACK))
+
+    builder.add(types.InlineKeyboardButton(
+        text=CANCEL_TEXT,
+        callback_data=CANCEL_SEARCH_CALLBACK))
 
     if search_cond == "brand":
-        website = InlineKeyboardButton(text=GO_TO_WEBSITE_TEXT,
-                                       callback_data=WEBSITE_LINK_CALLBACK)
-        search_command_markup.add(custom_search, website)
-    else:
-        search_command_markup.add(custom_search)
+        builder.add(types.InlineKeyboardButton(
+            text=GO_TO_WEBSITE_TEXT,
+            callback_data=WEBSITE_LINK_CALLBACK))
 
-    search_command_markup.add(cancel)
-
-    return search_command_markup
+    return builder
 
 
 def create_website_link_keyboard(link):
