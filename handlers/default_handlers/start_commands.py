@@ -7,7 +7,7 @@ from states.custom_states import StartState
 
 from user_interface import text
 
-router = Router()
+start_router = Router()
 
 
 def get_user_info(message: types.Message) -> tuple:
@@ -25,7 +25,7 @@ def create_and_save_user(user_id, username, first_name, last_name):
     User(user_id=user_id, username=username, first_name=first_name, last_name=last_name).save()
 
 
-@dp.message(Command(commands=["start"]))
+@start_router.message(Command(commands=["start"]))
 async def start_command_handler(message: types.Message, state: FSMContext) -> None:
     """Handler for the /start command."""
 
@@ -33,7 +33,7 @@ async def start_command_handler(message: types.Message, state: FSMContext) -> No
     await message.reply(text.START_MSG)
 
 
-@dp.message(Command("start_again"))
+@start_router.message(Command("start_again"))
 async def start_command_handler(message: types.Message, state: FSMContext) -> None:
     """Handler for the /start_again command."""
 

@@ -4,25 +4,14 @@ from aiogram.fsm.context import FSMContext
 from database.models import Selections
 from keyboards.inline.search_keyboards import create_website_link_keyboard
 from site_ip.main_request import make_response, get_conditions_list
-from states.custom_states import SelectCond, FinalCond, UserState
+from states.custom_states import FinalCond
 from user_interface import text
 from user_interface.text import DESCRIPTION
 
-router = Router()
+search_call_router = Router()
 
 
-# # Constants for Callback Data
-# CHECK_AMOUNT_PRODUCTS_CALLBACK = 'check_amount_products'
-# CANCEL_SEARCH_COND_CALLBACK = 'cancel_search_cond'
-# WEBSITE_LINK_CALLBACK = 'website_link'
-#
-# # Constants for States
-# FINAL_SELECTION_STATE = states.custom_states.UserState.final_selection
-# CONDITION_SELECTION_STATE = states.custom_states.UserState.condition_selection
-# CUSTOM_STATE = states.custom_states.UserState.custom_state
-#
-
-@router.callback_query(F.data == "check_amount_products")
+@search_call_router.callback_query(F.data == "check_amount_products")
 async def check_amount_products_callback(callback: types.CallbackQuery, state: FSMContext) -> None:
     """Handle the 'check_amount_products' callback."""
 
@@ -54,7 +43,7 @@ async def check_amount_products_callback(callback: types.CallbackQuery, state: F
             text=text.CONDITION)
 
 
-@router.callback_query(FinalCond.final_selection)
+@search_call_router.callback_query(FinalCond.final_selection)
 async def callback_search_command(callback: types.CallbackQuery, state: FSMContext) -> None:
     """Processing button clicks, condition selection"""
 
@@ -62,7 +51,6 @@ async def callback_search_command(callback: types.CallbackQuery, state: FSMConte
     user_data["params"]["name"] = callback.data
     params = user_data["params"]
     selected_product = make_response(params=params)[0]
-
 
     print(user_data)
 
@@ -75,17 +63,17 @@ async def callback_search_command(callback: types.CallbackQuery, state: FSMConte
 
     await state.set_state(FinalCond.final_selection)
 
-@router.callback_query(F.data == "cancel_search_cond")
+
+@search_call_router.callback_query(F.data == "cancel_search_cond")
 async def call_btn_file(callback: types.CallbackQuery, state: FSMContext) -> None:
     await state.set_state(UserState.condition_selection)
 
     bot.delete_message(callback.message.chat.id, callback.message.id)
 
 
-@router.callback_query(F.data == "website_link")
+@search_call_router.callback_query(F.data == "website_link")
 async def handle_website_link_callback(callback: types.CallbackQuery, state: FSMContext) -> None:
     """Processing of a button click, a link to the site"""
-
 
     user_data = await state.get_data()
 

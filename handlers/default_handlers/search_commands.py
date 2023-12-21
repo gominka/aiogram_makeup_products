@@ -4,12 +4,12 @@ from aiogram.fsm.context import FSMContext
 
 from keyboards.inline.search_keyboards import create_search_command_keyboard
 from site_ip.main_request import BASE_PARAMS, get_conditions_list
-from states.custom_states import StartState, SelectCond
+from states.custom_states import SelectCond
 
-router = Router()
+search_router = Router()
 
 
-@router.message(Command(commands=['brand', 'product_tag', 'product_type']), state=StartState.start_state)
+@search_router.message(Command(commands=['brand', 'product_tag', 'product_type']))
 async def search_command_handler(message: types.Message, state: FSMContext) -> None:
     """Handle commands related to product search."""
 
@@ -29,13 +29,12 @@ async def search_command_handler(message: types.Message, state: FSMContext) -> N
     await state.set_state(SelectCond.choosing_condition)
 
 
-@router.callback_query(SelectCond.choosing_condition)
+@search_router.callback_query(SelectCond.choosing_condition)
 async def callback_search_command(callback: types.CallbackQuery, state: FSMContext) -> None:
     """Process button clicks, condition selection."""
 
-    search_cond = (await state.get_data())["search_cond"]
-
     user_data = await state.get_data()
+    search_cond = user_data["search_cond"]
     user_data["params"][search_cond] = callback.data
 
     await callback.message.answer(
