@@ -4,7 +4,7 @@ from aiogram.fsm.context import FSMContext
 from database.models import Selections
 from keyboards.inline.search_keyboards import create_website_link_keyboard
 from site_ip.main_request import make_response, get_conditions_list
-from states.custom_states import FinalCond
+from states.custom_states import FinalCond, SelectCond
 from user_interface import text
 from user_interface.text import DESCRIPTION
 
@@ -66,9 +66,9 @@ async def callback_search_command(callback: types.CallbackQuery, state: FSMConte
 
 @search_call_router.callback_query(F.data == "cancel_search_cond")
 async def call_btn_file(callback: types.CallbackQuery, state: FSMContext) -> None:
-    await state.set_state(UserState.condition_selection)
+    await state.set_state(SelectCond.choosing_condition)
 
-    bot.delete_message(callback.message.chat.id, callback.message.id)
+    await callback.message.delete()
 
 
 @search_call_router.callback_query(F.data == "website_link")
