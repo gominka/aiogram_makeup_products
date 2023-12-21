@@ -1,23 +1,15 @@
-from aiogram import Router, types, F
-from aiogram.filters import StateFilter, Command
+from aiogram import Router, types
+from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
-from aiogram.fsm.state import StatesGroup, State
-from aiogram.types import Message, ReplyKeyboardRemove
 
-from handlers.default_handlers.exception_handler import exc_handler
 from keyboards.inline.search_keyboards import create_search_command_keyboard
-from loader import dp
 from site_ip.main_request import BASE_PARAMS, get_conditions_list
+from states.custom_states import StartState, SelectCond
 
 router = Router()
 
 
-class SelectCond(StatesGroup):
-    choosing_condition = State()
-    custom_state = State()
-
-
-@router.message(Command(commands=['brand', 'product_tag', 'product_type']))
+@router.message(Command(commands=['brand', 'product_tag', 'product_type']), state=StartState.start_state)
 async def search_command_handler(message: types.Message, state: FSMContext) -> None:
     """Handle commands related to product search."""
 
@@ -26,7 +18,6 @@ async def search_command_handler(message: types.Message, state: FSMContext) -> N
     await state.update_data(params=BASE_PARAMS)
 
     user_data = await state.get_data()
-
 
     buttons = [
         types.InlineKeyboardButton(text=condition, callback_data=condition)

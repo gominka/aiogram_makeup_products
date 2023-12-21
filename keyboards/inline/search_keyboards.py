@@ -1,8 +1,6 @@
 from aiogram import types
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-from site_ip.main_request import get_conditions_list
-
 
 
 def create_search_command_keyboard(search_cond):

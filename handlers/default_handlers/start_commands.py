@@ -1,17 +1,13 @@
 from aiogram import types, Router
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
-from aiogram.fsm.state import default_state, StatesGroup, State
 from database.models import User
 from loader import dp
+from states.custom_states import StartState
 
 from user_interface import text
 
 router = Router()
-
-
-class StartState(StatesGroup):
-    start_state = State()
 
 
 def get_user_info(message: types.Message) -> tuple:
