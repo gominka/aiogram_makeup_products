@@ -69,7 +69,10 @@ async def call_btn_file(callback: types.CallbackQuery, state: FSMContext) -> Non
     await state.set_state(SelectCond.choosing_condition)
 
     await callback.message.delete()
-
+@search_call_router.callback_query(F.data == "cancel")
+async def call_btn_file(callback: types.CallbackQuery, state: FSMContext) -> None:
+    await callback.message.delete()
+    await callback.message.delete()
 
 @search_call_router.callback_query(F.data == "website_link")
 async def handle_website_link_callback(callback: types.CallbackQuery, state: FSMContext) -> None:

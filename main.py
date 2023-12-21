@@ -1,6 +1,8 @@
 import asyncio
 import logging
 from datetime import datetime
+
+from database.models import create_models
 from handlers.additional_handlers import price_rating, search_callback
 from handlers.default_handlers import start_commands, search_commands
 from loader import dp, bot
@@ -20,5 +22,6 @@ async def main():
 
 
 if __name__ == '__main__':
+    create_models()
     logging.basicConfig(level=logging.INFO)
     asyncio.run(main())

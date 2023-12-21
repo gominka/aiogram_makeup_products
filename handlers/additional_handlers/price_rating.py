@@ -13,8 +13,6 @@ cond_router = Router()
 
 async def handle_search_command(message, condition_suffix, state: FSMContext):
     await state.update_data(cond2=f"_{condition_suffix}")
-
-    await state.set_state(SelectCond.number_selection)
     builder = ReplyKeyboardBuilder()
 
     builder.row(
@@ -28,10 +26,11 @@ async def handle_search_command(message, condition_suffix, state: FSMContext):
 async def main_search_command(message: types.Message, state: FSMContext) -> None:
     """Handler triggered by the command /high, /low"""
 
+    await state.set_state(SelectCond.number_selection)
     await handle_search_command(message, "less_than" if message.text[1:] == "high" else "greater_than", state)
 
 
-@cond_router.callback_query(SelectCond.number_selection)
+@cond_router.message(SelectCond.number_selection)
 async def select_condition(message: types.Message, state: FSMContext) -> None:
 
     await state.update_data(cond1=message.text)
@@ -40,7 +39,7 @@ async def select_condition(message: types.Message, state: FSMContext) -> None:
     await message.answer("Enter a number: ", reply_markup=reply_keyboards.EMPTY)
 
 
-@cond_router.callback_query(SelectCond.check_number_selection)
+@cond_router.message(SelectCond.check_number_selection)
 async def select_cond(message: types.Message, state: FSMContext) -> None:
     msg_user = int(message.text)
     user_data = await state.get_data()
@@ -58,4 +57,4 @@ async def select_cond(message: types.Message, state: FSMContext) -> None:
         await state.set_state(SelectCond.number_selection)
         await message.answer("The number must be from 1 to 10: ", reply_markup=reply_keyboards.EMPTY)
 
-        await select_condition(message)
+        await select_condition(message, state)

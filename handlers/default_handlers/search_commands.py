@@ -2,6 +2,7 @@ from aiogram import Router, types
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 
+from handlers.default_handlers.exception_handler import exc_handler
 from keyboards.inline.search_keyboards import create_search_command_keyboard
 from site_ip.main_request import BASE_PARAMS, get_conditions_list
 from states.custom_states import SelectCond
@@ -10,6 +11,7 @@ search_router = Router()
 
 
 @search_router.message(Command(commands=['brand', 'product_tag', 'product_type']))
+@exc_handler
 async def search_command_handler(message: types.Message, state: FSMContext) -> None:
     """Handle commands related to product search."""
 

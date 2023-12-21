@@ -1,12 +1,11 @@
 import logging
 from typing import Callable, Union
 import functools
-from json import JSONDecodeError
 
 from aiogram import types
 from aiogram.fsm.context import FSMContext
 from peewee import IntegrityError
-from requests import ConnectTimeout, RequestException, HTTPError, Timeout
+from requests import ConnectTimeout, HTTPError, Timeout
 
 from loader import bot
 from user_interface import text
@@ -15,7 +14,7 @@ logger = logging.getLogger(__name__)
 TIMEOUT = 10
 
 
-def handle_request_errors(func):
+async def handle_request_errors(func):
     @functools.wraps(func)
     async def wrapper(*args, **kwargs):
         try:
@@ -41,11 +40,9 @@ def exc_handler(method: Callable) -> Callable:
     async def wrapped(message: Union[types.Message, types.CallbackQuery], state: FSMContext = None) -> None:
         try:
             await method(message, state)
-        except ValueError as exception:
+        except ValueError:
             if isinstance(message, types.CallbackQuery):
                 message = message.message
-            if exception.__class__.__name__ == 'JSONDecodeError':
-                await exc_handler(method)(message, state)
             else:
                 error_message = "Enter a valid number"
                 await message.answer(text=error_message)
