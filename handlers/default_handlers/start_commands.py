@@ -1,5 +1,3 @@
-import asyncio
-import tracemalloc
 from asyncio.log import logger
 
 from aiogram import types, Router
@@ -44,7 +42,6 @@ async def start_command_handler(message: types.Message, state: FSMContext) -> No
 @start_router.message(Command("start_again"))
 async def start_command_handler(message: types.Message, state: FSMContext) -> None:
     """Handler for the /start_again command."""
-    tracemalloc.start()
     await message.reply(text="Previously selected conditions have been reset")
     await state.clear()
 
