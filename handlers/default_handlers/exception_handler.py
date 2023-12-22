@@ -1,5 +1,5 @@
 import logging
-from typing import Callable, Union
+from typing import Callable, Union, Awaitable
 import functools
 
 from aiogram import types
@@ -20,8 +20,11 @@ async def handle_request_errors(func):
         try:
             result = await func(*args, **kwargs)
             return result
-        except (ConnectTimeout, Timeout):
+        except ConnectTimeout:
             logger.error("Connection timed out. Please check your internet connection or try again later.")
+            return None
+        except Timeout:
+            logger.error("Request timed out. Please try again later.")
             return None
         except HTTPError as e:
             logger.error(f"HTTP Error: {e}")
@@ -33,9 +36,8 @@ async def handle_request_errors(func):
     return wrapper
 
 
-def exc_handler(method: Callable) -> Callable:
-    """ Decorator. Logs the exception to the called function, notifies the user of the error """
-
+def exc_handler(method: Callable[..., Awaitable[None]]) -> Callable[..., Awaitable[None]]:
+    """Decorator. Logs the exception to the called function, notifies the user of the error."""
     @functools.wraps(method)
     async def wrapped(message: Union[types.Message, types.CallbackQuery], state: FSMContext = None) -> None:
         try:

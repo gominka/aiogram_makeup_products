@@ -14,20 +14,22 @@ search_router = Router()
 @exc_handler
 async def search_command_handler(message: types.Message, state: FSMContext) -> None:
     """Handle commands related to product search."""
+    search_condition = message.text[1:]
 
-    search_cond = message.text[1:]
-    await state.update_data(search_cond=search_cond)
+    await state.update_data(search_cond=search_condition)
     await state.update_data(params=BASE_PARAMS)
 
     user_data = await state.get_data()
+    conditions_list = get_conditions_list(params=user_data["params"],
+                                          selected_condition=search_condition)
 
     buttons = [
         types.InlineKeyboardButton(text=condition, callback_data=condition)
-        for condition in get_conditions_list(params=user_data["params"], selected_condition=search_cond)
+        for condition in conditions_list
     ]
     keyboard = types.InlineKeyboardMarkup(inline_keyboard=[buttons[i:i + 5] for i in range(0, len(buttons), 5)])
-    await message.answer(text="Select a condition:", reply_markup=keyboard)
 
+    await message.answer(text="Select a condition:", reply_markup=keyboard)
     await state.set_state(SelectCond.choosing_condition)
 
 
@@ -36,12 +38,14 @@ async def callback_search_command(callback: types.CallbackQuery, state: FSMConte
     """Process button clicks, condition selection."""
 
     user_data = await state.get_data()
-    search_cond = user_data["search_cond"]
-    user_data["params"][search_cond] = callback.data
+    search_condition = user_data["search_cond"]
+    selected_condition = callback.data
+
+    user_data["params"][search_condition] = selected_condition
 
     await callback.message.answer(
         text="Select a condition",
-        reply_markup=create_search_command_keyboard(search_cond)
+        reply_markup=create_search_command_keyboard(search_condition)
     )
 
     await state.set_state(SelectCond.custom_state)

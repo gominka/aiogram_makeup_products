@@ -32,7 +32,7 @@ class User(BaseModel):
         return f"{self.user_id} - {self.username}"
 
 
-class Selections(BaseModel):
+class History(BaseModel):
     """Model of users selections"""
 
     select_id = AutoField()

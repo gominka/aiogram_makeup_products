@@ -11,6 +11,7 @@ class SelectCond(StatesGroup):
     final_selection = State()
     number_selection = State()
     check_number_selection = State()
+    product_details = State()
 
 
 class FinalCond(StatesGroup):

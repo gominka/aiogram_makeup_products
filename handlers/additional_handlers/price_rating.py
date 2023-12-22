@@ -32,7 +32,6 @@ async def main_search_command(message: types.Message, state: FSMContext) -> None
 
 @cond_router.message(SelectCond.number_selection)
 async def select_condition(message: types.Message, state: FSMContext) -> None:
-
     await state.update_data(cond1=message.text)
     await state.set_state(SelectCond.check_number_selection)
 
@@ -41,7 +40,12 @@ async def select_condition(message: types.Message, state: FSMContext) -> None:
 
 @cond_router.message(SelectCond.check_number_selection)
 async def select_cond(message: types.Message, state: FSMContext) -> None:
-    msg_user = int(message.text)
+    try:
+        msg_user = int(message.text)
+    except ValueError:
+        await message.answer("Please enter a valid number.")
+        return
+
     user_data = await state.get_data()
 
     if (user_data["cond1"] == "rating" and 1 <= msg_user <= 10) or user_data["cond1"] == "price":

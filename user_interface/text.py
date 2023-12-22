@@ -8,11 +8,12 @@ SEARCH_COMMANDS = f"\n\n{emoji.search_condition['high']} /high - Set a maximum p
                   f"\n\n{emoji.search_condition['low']} /low - Set a minimum price or rating"\
                   f"\n\n{emoji.addition_condition['start_again']} /start_again - Start over"
 
+HISTORY = f"\n\n{emoji.addition_condition['history']} /history - Withdrawal of previously selected products"
 
 START_MSG = "Welcome to Telegram Bot!" \
             "\n\n Select a condition to start the search: " + MAIN_COMMANDS
 
-HELP_MSG = "List of available commands:" + MAIN_COMMANDS
+HELP_MSG = "List of available commands:" + MAIN_COMMANDS+ HISTORY
 
 CONDITION = "Select the command:" + MAIN_COMMANDS + SEARCH_COMMANDS
 
