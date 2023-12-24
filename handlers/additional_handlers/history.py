@@ -44,6 +44,6 @@ async def callback_search_command(callback: types.CallbackQuery, state: FSMConte
 
     params = BASE_PARAMS
     params["name"] = callback.data
-    response = make_response(params=params)
+    response = await make_response(params=params)
     await send_product_details(callback, response[0])
     await state.set_state(SelectCond.custom_state)

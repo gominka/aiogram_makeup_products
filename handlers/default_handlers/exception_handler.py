@@ -40,7 +40,6 @@ def error_handler(handler):
         try:
             return await handler(*args, **kwargs)
         except Exception as e:
-            print(e)
             await handle_error(*args, e)
 
     return wrapped

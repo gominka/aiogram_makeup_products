@@ -47,7 +47,7 @@ async def get_conditions_list(params: dict, selected_condition: str) -> List:
         return extract_unique_elements(data, 'brand')
 
     elif selected_condition == "product_tag":
-        return extract_unique_elements(item.get('tag_list', []) for item in data)
+        return sorted({element for item in data for element in item.get('tag_list', [])})
 
     elif selected_condition == "product_type":
         return extract_unique_elements(data, 'product_type')
@@ -57,6 +57,6 @@ async def get_conditions_list(params: dict, selected_condition: str) -> List:
 
     elif selected_condition == "all_condition":
         brands = extract_unique_elements(data, 'brand')
-        tags = extract_unique_elements(item.get('tag_list', []) for item in data)
+        tags = sorted({element for item in data for element in item.get('tag_list', [])})
         product_types = extract_unique_elements(data, 'product_type')
         return sorted(brands + tags + product_types)

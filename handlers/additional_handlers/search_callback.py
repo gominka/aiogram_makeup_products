@@ -31,7 +31,8 @@ async def handle_selection_response(callback: types.CallbackQuery, state: FSMCon
     """Handle the response after product selection."""
     user_data = await state.get_data()
     params = user_data["params"]
-    selected_product = make_response(params=params)[0]
+    response = await make_response(params=params)
+    selected_product = response[0] if response else None
 
     History(user_id=callback.from_user.id, product_name=selected_product["name"]).save()
     await send_product_details(callback, selected_product)

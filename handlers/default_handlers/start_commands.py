@@ -16,6 +16,7 @@ def get_user_info(message: types.Message) -> tuple:
     user = message.from_user
     return user.id, user.username, user.first_name, user.last_name
 
+
 @start_router.message(Command(commands=["start"]))
 @error_handler
 async def start_command_handler(message: types.Message, state: FSMContext) -> None:
