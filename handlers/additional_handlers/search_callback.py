@@ -33,8 +33,11 @@ async def handle_selection_response(callback: types.CallbackQuery, state: FSMCon
     params = user_data["params"]
     response = await make_response(params=params)
     selected_product = response[0] if response else None
+    product_names = set([name.product_name for name in History.select().where(History.user_id == callback.from_user.id)])
 
-    History(user_id=callback.from_user.id, product_name=selected_product["name"]).save()
+    if selected_product not in product_names:
+        History(user_id=callback.from_user.id, product_name=selected_product["name"]).save()
+
     await send_product_details(callback, selected_product)
 
     await state.set_state(FinalCond.final_selection)
