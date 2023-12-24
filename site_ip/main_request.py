@@ -1,57 +1,62 @@
-import json
+from asyncio.log import logger
 from typing import Dict, List, Optional
+import aiohttp
 
-import requests
+from site_ip.request_utils import handle_request_errors
 
 TIMEOUT = 10
-
-BASE_URL = "http://makeup-api.herokuapp.com/api/v1/products.json"
-DEFAULT_SUCCESS_CODE = requests.codes.ok
+BASE_API_URL = "http://makeup-api.herokuapp.com/api/v1/products.json"
+DEFAULT_SUCCESS_CODE = 200
 
 BASE_PARAMS = {
-    "name": None,
-    "product_type": None,
-    "product_category": None,
-    "product_tags": None,
-    "brand": None,
-    "price_greater_than": None,
-    "price_less_than": None,
-    "rating_greater_than": None,
-    "rating_less_than": None
+    "name": "",
+    "product_type": "",
+    "product_category": "",
+    "product_tags": "",
+    "brand": "",
+    "price_greater_than": "",
+    "price_less_than": "",
+    "rating_greater_than": "",
+    "rating_less_than": ""
 }
 
 
-def make_response(params: Dict[str, Optional[str]], success_code: int = DEFAULT_SUCCESS_CODE) -> Optional[Dict]:
-    response = requests.get(BASE_URL, params=params, timeout=TIMEOUT)
-    response.raise_for_status()
-
-    if response.status_code == success_code:
-        return json.loads(response.text)
+@handle_request_errors
+async def make_response(params: Dict[str, Optional[str]], success_code: int = DEFAULT_SUCCESS_CODE) -> Optional[Dict]:
+    async with aiohttp.ClientSession() as session:
+        async with session.get(BASE_API_URL, params=params, timeout=TIMEOUT) as response:
+            response.raise_for_status()
+            if response.status == success_code:
+                return await response.json()
 
     return None
 
 
-def get_conditions_list(params: dict, selected_condition: str) -> List:
-    data = make_response(params)
+def extract_unique_elements(data, key):
+    return sorted({item[key] for item in data if item[key] is not None})
+
+
+async def get_conditions_list(params: dict, selected_condition: str) -> List:
+    data = await make_response(params)
 
     if not data:
-        # Handle the case when the API request fails
+        logger.warning("API response is empty.")
         return []
 
     if selected_condition == "brand":
-        return sorted(list(set([item['brand'] for item in data if item['brand'] is not None])))
+        return extract_unique_elements(data, 'brand')
 
     elif selected_condition == "product_tag":
-        return sorted(list(set([tag for item in data for tag in item['tag_list'] if item['tag_list']])))
+        return extract_unique_elements(item.get('tag_list', []) for item in data)
 
     elif selected_condition == "product_type":
-        return sorted(list(set([item['product_type'] for item in data if item['product_type'] is not None])))
+        return extract_unique_elements(data, 'product_type')
 
     elif selected_condition == "list_name_product":
-        return sorted(list(set([item['name'] for item in data if item['name'] is not None])))
+        return extract_unique_elements(data, 'name')
 
     elif selected_condition == "all_condition":
-        brands = sorted(list(set([item['brand'] for item in data if item['brand'] is not None])))
-        tags = sorted(list(set([tag for item in data for tag in item['tag_list'] if item['tag_list']])))
-        product_types = sorted(list(set([item['product_type'] for item in data if item['product_type'] is not None])))
-        return brands + tags + product_types
+        brands = extract_unique_elements(data, 'brand')
+        tags = extract_unique_elements(item.get('tag_list', []) for item in data)
+        product_types = extract_unique_elements(data, 'product_type')
+        return sorted(brands + tags + product_types)

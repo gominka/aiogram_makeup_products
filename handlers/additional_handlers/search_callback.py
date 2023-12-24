@@ -15,10 +15,13 @@ async def handle_name_selection(callback: types.CallbackQuery, state: FSMContext
     """Handle the selection of product names."""
     user_data = await state.get_data()
     params = user_data["params"]
+    conditions_list = await get_conditions_list(params=user_data["params"], selected_condition="list_name_product")
+
     buttons = [
         types.InlineKeyboardButton(text=condition, callback_data=condition)
-        for condition in get_conditions_list(params=params, selected_condition="list_name_product")
+        for condition in conditions_list
     ]
+
     keyboard = types.InlineKeyboardMarkup(inline_keyboard=[buttons[i:i + 5] for i in range(0, len(buttons), 5)])
     await callback.message.answer(text="Select a name:", reply_markup=keyboard)
     await state.set_state(FinalCond.final_selection)
@@ -51,8 +54,9 @@ async def check_amount_products_callback(callback: types.CallbackQuery, state: F
 
     user_data = await state.get_data()
     params = user_data["params"]
-    response = make_response(params=user_data["params"])
-    selected_product = make_response(params=params)[0]
+
+    response = await make_response(params=params)
+    selected_product = response[0] if response else None
 
     if len(response) == 1:
         History(user_id=callback.from_user.id, product_name=selected_product["name"]).save()

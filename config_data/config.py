@@ -23,22 +23,22 @@ def getenv_or_raise(key: str, default=None):
 
 
 @dataclass
-class Config:
+class AppConfig:
     tg_bot: TelegramBotConfig
     database: DatabaseConfig
 
 
-def load_config(path: str = None):
+def load_config(path: str = None) -> AppConfig:
     env = Env()
     env.read_env(path)
 
-    return Config(
+    return AppConfig(
         tg_bot=TelegramBotConfig(token=SecretStr(getenv_or_raise("BOT_TOKEN"))),
         database=DatabaseConfig(name=SecretStr(getenv_or_raise("DB_NAME")))
     )
 
 
-def load_default_commands():
+def load_default_commands() -> tuple:
     return (
         ("start", "Start the search"),
         ("brand", "Brand selection"),
